@@ -22,7 +22,7 @@ def serial_rx(sysclk, reset_n, n_stop_bits_i, half_baud_rate_tick_i, baud_rate_t
 
     """
     END_OF_BYTE = 7
-    
+
     state_reg = Signal(t_State.ST_WAIT_START_BIT)
     state = Signal(t_State.ST_WAIT_START_BIT)
 
@@ -30,7 +30,7 @@ def serial_rx(sysclk, reset_n, n_stop_bits_i, half_baud_rate_tick_i, baud_rate_t
     data = Signal(intbv(0, min = 0, max = 256))
     ready_reg = Signal(bool(0))
     ready = Signal(bool(0))
-    
+
     count_8_bits_reg = Signal(intbv(0, min = 0, max = 8))
     count_8_bits = Signal(intbv(0, min = 0, max = 8))
 
@@ -50,7 +50,7 @@ def serial_rx(sysclk, reset_n, n_stop_bits_i, half_baud_rate_tick_i, baud_rate_t
         ready_reg.next = ready
         count_8_bits_reg.next = count_8_bits
         count_stop_bits_reg.next = count_stop_bits
-    
+
     @always_comb
     def combinational_process():
         state.next  = state_reg
@@ -74,7 +74,7 @@ def serial_rx(sysclk, reset_n, n_stop_bits_i, half_baud_rate_tick_i, baud_rate_t
                 else:
                     count_8_bits.next = count_8_bits_reg + 1
                     state.next = t_State.ST_GET_DATA_BITS
-                
+
 
         elif state_reg == t_State.ST_GET_STOP_BITS:
             if baud_rate_tick_i == True:
@@ -87,7 +87,6 @@ def serial_rx(sysclk, reset_n, n_stop_bits_i, half_baud_rate_tick_i, baud_rate_t
         else:
             raise ValueError("Undefined State")
 
-            
+
 
     return outputs, sequential_process, combinational_process
-

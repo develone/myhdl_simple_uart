@@ -21,7 +21,7 @@ def serial_tx(sysclk, reset_n, start_i, data_i, n_stop_bits_i, baud_rate_tick_i,
 
     """
     END_OF_BYTE = 7
-    
+
     state_reg = Signal(t_State.ST_WAIT_START)
     state = Signal(t_State.ST_WAIT_START)
 
@@ -44,7 +44,7 @@ def serial_tx(sysclk, reset_n, start_i, data_i, n_stop_bits_i, baud_rate_tick_i,
         transmit_reg.next  = transmit
         count_8_bits_reg.next = count_8_bits
         count_stop_bits_reg.next = count_stop_bits
-    
+
     @always_comb
     def combinational_process():
         state.next  = state_reg
@@ -71,7 +71,7 @@ def serial_tx(sysclk, reset_n, start_i, data_i, n_stop_bits_i, baud_rate_tick_i,
                 else:
                     count_8_bits.next = count_8_bits_reg + 1
                     state.next = t_State.ST_SEND_DATA
-                
+
 
         elif state_reg == t_State.ST_SEND_STOP_BIT:
             transmit.next = True
@@ -84,6 +84,6 @@ def serial_tx(sysclk, reset_n, start_i, data_i, n_stop_bits_i, baud_rate_tick_i,
         else:
             raise ValueError("Undefined State")
 
-            
+
 
     return outputs, sequential_process, combinational_process
