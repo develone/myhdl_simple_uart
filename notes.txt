@@ -1,0 +1,59 @@
+iverilog -o uart serial_rx.v serial_tx.v baudrate_gen.v main.v
+
+yosys -l simple.log -p 'synth_ice40 -blif top.blif -json top.json' top.v main.v serial_rx.v serial_tx.v baudrate_gen.v
+
+yosys -l simple.log -p 'synth_ice40 -blif main.blif -json main.json' main.v
+
+yosys -l simple.log -p 'synth_ice40 -blif serial_rx.blif -json serial_rx.json' serial_rx.v
+
+2.50. Printing statistics.
+
+=== serial_rx ===
+
+   Number of wires:                 40
+   Number of wire bits:             75
+   Number of public wires:          40
+   Number of public wire bits:      75
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 49
+     SB_CARRY                        2
+     SB_DFFER                       15
+     SB_DFFR                         2
+     SB_DFFS                         1
+     SB_LUT4                        29
+
+
+yosys -l simple.log -p 'synth_ice40 -blif serial_tx.blif -json serial_tx.json' serial_tx.v
+
+=== serial_tx ===
+
+   Number of wires:                 29
+   Number of wire bits:             50
+   Number of public wires:          29
+   Number of public wire bits:      50
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 33
+     SB_CARRY                        2
+     SB_DFFER                        8
+     SB_DFFR                         1
+     SB_LUT4                        22
+     
+yosys -l simple.log -p 'synth_ice40 -blif baudrate_gen.blif -json baudrate_gen.json' 
+
+baudrate_gen.v=== baudrate_gen ===
+
+   Number of wires:                 24
+   Number of wire bits:             51
+   Number of public wires:          24
+   Number of public wire bits:      51
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 47
+     SB_CARRY                        8
+     SB_DFFR                        12
+     SB_LUT4                        27

@@ -11,13 +11,14 @@ def convert_serial_rx(hdl):
     clk = Signal(bool(0))
     rst = ResetSignal(0, active=0, isasync=True)
     baudrate_tick = Signal(bool(0))
-     
-    half_baud_rate_tick = Signal(bool(0))
-    
+    half_baud_rate_tick = Signal(bool(0))     
     rx_data = Signal(intbv(0, min = 0, max = 256))
     tx = Signal(bool(0))
     n_stop_bits = 1
     rx_rdy = Signal(False)
+    start = Signal(False)
+    tx_data = Signal(intbv(0, min = 0, max = 256))
+    tx = Signal(bool(0))
 
     serial_rx_inst   = serial_rx(clk, rst, n_stop_bits, half_baud_rate_tick, \
         baudrate_tick, tx, rx_data, rx_rdy)

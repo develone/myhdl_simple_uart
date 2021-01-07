@@ -81,8 +81,8 @@ def serial_tx(clk, rst, start, data, n_stop_bits, baud_rate_tick, tx):
                     state.next = t_State.ST_WAIT_START
                 else:
                     count_stop_bits.next = count_stop_bits_reg + 1
-        else:
-            raise ValueError("Undefined State")
+        """else:
+            raise ValueError("Undefined State")"""
 
 
 
