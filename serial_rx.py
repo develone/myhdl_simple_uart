@@ -2,22 +2,22 @@ from myhdl import *
 
 t_State = enum('ST_WAIT_START_BIT', 'ST_GET_DATA_BITS', 'ST_GET_STOP_BITS' )
 
-
-def serial_rx(sysclk, reset_n, n_stop_bits_i, half_baud_rate_tick_i, baud_rate_tick_i, recieve_i, data_o, ready_o):
+@block
+def serial_rx(clk, rst, n_stop_bits, half_baud_rate_tick, baud_rate_tick, rx, rx_data, rx_rdy):
 
     """ Serial
     This module implements a reciever serial interface
 
     Ports:
     -----
-    sysclk: sysclk input
-    reset_n: reset input
-    half_baud_rate_tick_i: half baud rate tick
-    baud_rate_tick_i: the baud rate
-    n_stop_bits_i: number of stop bits
-    recieve_i: rx
-    data_o: the data output in 1 byte
-    ready_o: indicates data_o is valid
+    clk: clk input
+    rst: rst input
+    half_baud_rate_tick: half baud rate tick
+    baud_rate_tick: the baud rate
+    n_stop_bits: number of stop bits
+    rx: rx
+    rx_data: the data output in 1 byte
+    rx_rdy: indicates rx_data is valid
     -----
 
     """
@@ -39,11 +39,11 @@ def serial_rx(sysclk, reset_n, n_stop_bits_i, half_baud_rate_tick_i, baud_rate_t
 
     @always_comb
     def outputs():
-        data_o.next = data_reg
-        ready_o.next = ready_reg
+        rx_data.next = data_reg
+        rx_rdy.next = ready_reg
 
 
-    @always_seq(sysclk.posedge, reset = reset_n)
+    @always_seq(clk.posedge, reset = rst)
     def sequential_process():
         state_reg.next   = state
         data_reg.next  = data
@@ -61,13 +61,13 @@ def serial_rx(sysclk, reset_n, n_stop_bits_i, half_baud_rate_tick_i, baud_rate_t
 
         if state_reg == t_State.ST_WAIT_START_BIT:
             ready.next = False
-            if baud_rate_tick_i == True:
-                if recieve_i == False:
+            if baud_rate_tick == True:
+                if rx == False:
                     state.next = t_State.ST_GET_DATA_BITS
 
         elif state_reg == t_State.ST_GET_DATA_BITS:
-            if baud_rate_tick_i == True:
-                data.next[count_8_bits_reg] = recieve_i
+            if baud_rate_tick == True:
+                data.next[count_8_bits_reg] = rx
                 if count_8_bits_reg == END_OF_BYTE:
                     count_8_bits.next = 0
                     state.next = t_State.ST_GET_STOP_BITS
@@ -77,8 +77,8 @@ def serial_rx(sysclk, reset_n, n_stop_bits_i, half_baud_rate_tick_i, baud_rate_t
 
 
         elif state_reg == t_State.ST_GET_STOP_BITS:
-            if baud_rate_tick_i == True:
-                if count_stop_bits_reg == (n_stop_bits_i - 1):
+            if baud_rate_tick == True:
+                if count_stop_bits_reg == (n_stop_bits - 1):
                     count_stop_bits.next = 0
                     ready.next = True
                     state.next = t_State.ST_WAIT_START_BIT

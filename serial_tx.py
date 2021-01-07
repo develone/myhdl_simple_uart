@@ -2,21 +2,21 @@ from myhdl import *
 
 t_State = enum('ST_WAIT_START', 'ST_SEND_START_BIT', 'ST_SEND_DATA' , 'ST_SEND_STOP_BIT' )
 
-
-def serial_tx(sysclk, reset_n, start_i, data_i, n_stop_bits_i, baud_rate_tick_i, transmit_o):
+@block
+def serial_tx(clk, rst, start, data, n_stop_bits, baud_rate_tick, tx):
 
     """ Serial
     This module implements a transmitter serial interface
 
     Ports:
     -----
-    sysclk: sysclk input
-    reset_n: reset input
-    baud_rate_tick_i: the baud rate
-    start_i: start sending data
-    data_i: the data to send
-    n_stop_bits_i: number of stop bits
-    transmit_o: data output
+    clk: clk input
+    rst: rst input
+    baud_rate_tick: the baud rate
+    start: start sending data
+    data: the data to send
+    n_stop_bits: number of stop bits
+    tx: data output
     -----
 
     """
@@ -36,9 +36,9 @@ def serial_tx(sysclk, reset_n, start_i, data_i, n_stop_bits_i, baud_rate_tick_i,
 
     @always_comb
     def outputs():
-        transmit_o.next = transmit_reg
+        tx.next = transmit_reg
 
-    @always_seq(sysclk.posedge, reset = reset_n)
+    @always_seq(clk.posedge, reset = rst)
     def sequential_process():
         state_reg.next   = state
         transmit_reg.next  = transmit
@@ -54,17 +54,17 @@ def serial_tx(sysclk, reset_n, start_i, data_i, n_stop_bits_i, baud_rate_tick_i,
 
         if state_reg == t_State.ST_WAIT_START:
             transmit.next = True
-            if start_i == True:
+            if start == True:
                 state.next = t_State.ST_SEND_START_BIT
 
         elif state_reg == t_State.ST_SEND_START_BIT:
             transmit.next = False
-            if baud_rate_tick_i == True:
+            if baud_rate_tick == True:
                 state.next = t_State.ST_SEND_DATA
 
         elif state_reg == t_State.ST_SEND_DATA:
-            transmit.next = data_i[count_8_bits_reg]
-            if baud_rate_tick_i == True:
+            transmit.next = data[count_8_bits_reg]
+            if baud_rate_tick == True:
                 if count_8_bits_reg == END_OF_BYTE:
                     count_8_bits.next = 0
                     state.next = t_State.ST_SEND_STOP_BIT
@@ -75,8 +75,8 @@ def serial_tx(sysclk, reset_n, start_i, data_i, n_stop_bits_i, baud_rate_tick_i,
 
         elif state_reg == t_State.ST_SEND_STOP_BIT:
             transmit.next = True
-            if baud_rate_tick_i == True:
-                if count_stop_bits_reg == (n_stop_bits_i - 1):
+            if baud_rate_tick == True:
+                if count_stop_bits_reg == (n_stop_bits - 1):
                     count_stop_bits.next = 0
                     state.next = t_State.ST_WAIT_START
                 else:
